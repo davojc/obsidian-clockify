@@ -1,22 +1,7 @@
 import { moment, requestUrl, RequestUrlParam, RequestUrlResponse } from "obsidian";
-import { traceDeprecation } from "process";
-import { stringify } from "querystring";
-import { json } from "stream/consumers";
 import ClockifyPlugin from "./main";
 import { ClockifySettings } from "./settings";
 import { Tracker } from "./tracker";
-
-export interface TimerEntry {
-    id: string;
-    description: string;
-    startTime: number;
-    endTime: number;
-}
-
-export interface Project {
-    id: string;
-    name: string;
-}
 
 export class ClockifyService {
     app: ClockifyPlugin;
@@ -29,9 +14,7 @@ export class ClockifyService {
         this.settings = settings;
     }
 
-
     async saveTimer(tracker: Tracker): Promise<string> {
-
 
         if(tracker.workspaceId == "" || tracker.projectId == "")
         {
@@ -48,7 +31,7 @@ export class ClockifyService {
             url = url + "/" + tracker.id;
         }
 
-        console.log("CLOCKIFY: " + url);
+        //console.log("CLOCKIFY: " + url);
 
         var startTime = moment.unix(tracker.start).format(this.timestampFormat); 
 
@@ -72,13 +55,13 @@ export class ClockifyService {
             })
         }
 
-        console.log("CLOCKIFY: Body - " + json);
+        //console.log("CLOCKIFY: Body - " + json);
 
         let method: string = tracker.id == "" ? "POST" : "PUT";
 
         const options: RequestUrlParam = { url: url, method: method, headers: { 'X-Api-Key': this.settings.apiToken, 'Content-Type': 'application/json' }, body: json }
 
-        console.log("CLOCKIFY: Options - " + JSON.stringify(options));
+        //console.log("CLOCKIFY: Options - " + JSON.stringify(options));
 
         var response: RequestUrlResponse;
 
@@ -121,24 +104,4 @@ export class ClockifyService {
 
         return "";
     }
-
-    /*
-    function formatDuration(totalTime: number): string {
-        let duration = moment.duration(totalTime);
-        let ret = "";
-        if (duration.years() > 0)
-            ret += duration.years() + "y ";
-        if (duration.months() > 0)
-            ret += duration.months() + "m ";
-        if (duration.days() > 0)
-            ret += duration.days() + "d ";
-        if (duration.hours() > 0)
-            ret += duration.hours() + "h ";
-        if (duration.minutes() > 0)
-            ret += duration.minutes() + "m ";
-        ret += duration.seconds() + "s";
-        return ret;
-    }
-*/
-
 }

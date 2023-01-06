@@ -27,7 +27,14 @@ export class ClockifySettingsTab extends PluginSettingTab {
             .setValue(this.plugin.settings.baseEndpoint)
             .onChange(async (value) => {
                 console.log('BaseEndpoint: ' + value);
+
                 this.plugin.settings.baseEndpoint = value.length ? value : defaultSettings.baseEndpoint;
+
+                if(!this.plugin.settings.baseEndpoint.endsWith("/"))
+                {
+                    this.plugin.settings.baseEndpoint = this.plugin.settings.baseEndpoint + "/";
+                }
+
                 await this.plugin.saveSettings();
             }));
 

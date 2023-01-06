@@ -57,35 +57,23 @@ export function loadTracker(json: string): Tracker {
 
 export function displayTracker(service: ClockifyService, tracker: Tracker, element: HTMLElement, getSectionInfo: () => MarkdownSectionInformation, settings: ClockifySettings): void {
 
-    let running = isRunning(tracker);
-    let completed = isComplete(tracker);
+    let uiDetails = getUiDetails(tracker);
 
-    var icon: string;
-    var toolTip: string;
-
-    if(running) {
-        icon = "stop-circle";
-        toolTip = "End";
-    } else if(completed) {
-        icon = "edit";
-        toolTip = "Update Description";
-    }
-    else {
-        icon = "play-circle";
-        toolTip = "Start";
-    }
+    // Add in the workspace and project details. Useful hint in case it needs changing.
+    let projectDetailsDiv = element.createDiv({cls: "clockify-tracker-heading"});
+    projectDetailsDiv.createEl("span", { text: `${settings.workspace}/${settings.project}`});
 
     let table = element.createEl("table", {cls: "clockify-tracker-table"});
     let descriptionCell = table.createEl("td");
-    descriptionCell.addClass("clockify-tracker-timer");
+    descriptionCell.addClass("clockify-tracker-cell");
     let buttonCell = table.createEl("td");
-    buttonCell.addClass("clockify-tracker-timer");
+    buttonCell.addClass("clockify-tracker-cell");
     let durationCell = table.createEl("td");
     setCoundown(tracker, durationCell);
    
     let descriptionNameBox = new TextComponent(descriptionCell)
     .setPlaceholder("Description")
-    .setDisabled(running)
+    .setDisabled(tracker.state == State.Running)
     .onChange(s => {
         tracker.description = descriptionNameBox.getValue();
     });
@@ -95,17 +83,31 @@ export function displayTracker(service: ClockifyService, tracker: Tracker, eleme
 
     let btn = new ButtonComponent(buttonCell)
         .setClass("clickable-icon")
-        .setIcon(`lucide-${icon}`)
-        .setTooltip(toolTip)
+        .setIcon(`lucide-${uiDetails.icon}`)
+        .setTooltip(uiDetails.toolTip)
         .onClick(async () => {
        
+
+            switch(tracker.state)
+            {
+                case State.Running:
+                    end(tracker);
+                break;
+
+                case State.Uninitialised:
+                    start(tracker);
+                    descriptionNameBox.setDisabled(true);
+                break;
+            }
+
+            /*
         if(running) {
             end(tracker);
         } else if(!completed) {
             start(tracker);
             descriptionNameBox.setDisabled(true);
         }
-       
+       */
         await saveTracker(service, tracker, this.app, getSectionInfo());
     });
 
@@ -118,7 +120,7 @@ export function displayTracker(service: ClockifyService, tracker: Tracker, eleme
     )
 
     let intervalId = window.setInterval(() => {
-        // we delete the interval timer when the element is removed
+        // Interval timer must be removed when window is closed.
         if (!element.isConnected) {
             window.clearInterval(intervalId);
             return;
@@ -135,40 +137,57 @@ function setCoundown(tracker: Tracker, current: HTMLElement) {
 
 function getDuration(tracker: Tracker) {
 
-    if(isRunning(tracker)) {
-        return moment().diff(moment.unix(tracker.start));
-    } else if (tracker.start == 0) {
-        return 0;
+    switch(tracker.state) {
+
+        case State.Running:
+            return moment().diff(moment.unix(tracker.start));
+
+        case State.Completed:
+            return moment.unix(tracker.end).diff(moment.unix(tracker.start));
+
+        default:
+            return 0;
     }
-
-    let endTime = isComplete(tracker) ? moment.unix(tracker.end) : moment();
-    return endTime.diff(moment.unix(tracker.start));
-}
-
-function isRunning(tracker: Tracker): boolean {
-    
-    if(tracker == null)
-        return false;
-
-    return tracker.start > 0 && tracker.end == 0;
-}
-
-function isComplete(tracker: Tracker): boolean {
-
-    return tracker.end > 0;
-}
+}    
 
 function start(tracker: Tracker): void {
     
-    if(!isRunning(tracker) && !isComplete(tracker)) {
-        tracker.start = moment().unix();
+    if(tracker.state != State.Uninitialised) {
+        return;
     }
+
+    tracker.state = State.Running;
+    tracker.start = moment().unix();
 }
 
 function end(tracker: Tracker): void {
 
-    if(isRunning(tracker)) {
-        tracker.end = moment().unix();
+    if(tracker.state != State.Running) {
+        return;
+    }
+    
+    tracker.state = State.Completed;
+    tracker.end = moment().unix();
+}
+
+function getUiDetails(tracker: Tracker) {
+    
+    switch(tracker.state) {
+        case State.Running: {
+            return { icon: "stop-circle", toolTip: "End" };
+        }
+
+        case State.Completed: {
+            return { icon: "edit", toolTip: "Update Description" };
+        }
+
+        case State.Uninitialised: {
+            return { icon: "play-circle", toolTip: "Start" };
+        }
+
+        default: {
+            return { icon: "x", toolTip: "Error" };
+        }
     }
 }
 

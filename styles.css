@@ -28,8 +28,8 @@ If your plugin does not need CSS, delete this file.
 
 .clockify-tracker-table {
 	width: 100%;
-	margin-top: 20px;
-    margin-bottom: 20px;
+	margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 .clockify-tracker-table td,
@@ -38,5 +38,10 @@ If your plugin does not need CSS, delete this file.
 }
 
 .clockify-tracker-timer {
-	margin: 20px;
+	margin: 10px;
+}
+
+.clockify-tracker-heading {
+    font-size: smaller;
+    opacity: 0.5;
 }
