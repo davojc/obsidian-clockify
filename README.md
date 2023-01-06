@@ -1,6 +1,21 @@
-# Obsidian Sample Plugin
+# Clockify Timer
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+Simple timer integrated with the Clockify service (https://clockify.me).
+
+![A screenshot of the plugin in action, where you can see an active time tracker for a project]()
+
+## Configuration
+
+## Usage
+
+Now you have configured the plugin, it is time to get started tracking a task with Clockify from within an Obsidian note, open up the note that you want to track your time in and then use the code block:
+
+```clockify-timer
+```
+
+You will now see the timer tracker inserted. Simply add a description (it can be added/updated after the timer has stopped) and press the **Start** button. Once you are done with your task, simple press the **End** button. You can update the description before or after the time runs.
+
+
 
 This project uses Typescript to provide type checking and documentation.
 The repo depends on the latest plugin API (obsidian.d.ts) in Typescript Definition format, which contains TSDoc comments describing what it does.

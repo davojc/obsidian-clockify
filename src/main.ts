@@ -1,25 +1,82 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import Clockify, { WorkspaceType } from "clockify-ts";
+import { defaultSettings, ClockifySettings } from "./settings";
+import { ClockifySettingsTab } from './settings-tab';
+import { arrayBuffer } from 'stream/consumers';
+import { ClockifyService } from './service';
+import { displayTracker, loadTracker } from "./tracker";
 
 // Remember to rename these classes and interfaces!
 
-interface MyPluginSettings {
-	mySetting: string;
+/*
+interface ClockifySettings {
+	APIToken: string;
+	Workspace: string;
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
+const DEFAULT_SETTINGS: ClockifySettings = {
+	APIToken: '',
+	Workspace : ''
 }
+*/
 
-export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+
+export default class ClockifyPlugin extends Plugin {
+	settings: ClockifySettings;
+	clockify: Clockify;
+	service: ClockifyService;
 
 	async onload() {
 		await this.loadSettings();
 
+		this.clockify = new Clockify(this.settings.apiToken);
+		this.service = new ClockifyService(this, this.settings);
+
+		// This adds a settings tab so the user can configure various aspects of the plugin
+		this.addSettingTab(new ClockifySettingsTab(this.app, this));
+
+
+		this.registerMarkdownCodeBlockProcessor("clockify-timer", (s, e, i) => {
+			let tracker = loadTracker(s);
+			e.empty();
+			displayTracker(this.service, tracker, e, () => i.getSectionInfo(e), this.settings);
+		});
+
+		this.addCommand({
+			id: `insert`,
+			name: `Insert Clockify Timer`,
+			editorCallback: (e, _) => {
+				e.replaceSelection("```clockify-timer\n```\n");
+			}
+		});
+
+
+		//const projects = await this.clockify.workspace.withId(this.settings.Workspace).projects.get();
+
+		//const workspace = await this.clockify.workspace.withId(this.settings.workspace);
+		//const project = await this.clockify.workspace.withId(this.settings.workspace).projects.withId("63b4705f4ea5ce158d389d8c");
+		//const projects = await this.clockify.workspace.withId(this.settings.workspace).projects.get();
+
+		
+
 		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
+		const ribbonIconEl = this.addRibbonIcon('dice', 'Clockify', (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
-			new Notice('This is a notice!');
+
+			
+			
+			//const result = this.service.startTimer("", "Some description");
+
+
+			//new Notice(project.projectId);
+
+//			new Notice(workspace.workspaceId);
+
+
+//			projects.forEach(function (item) {
+//				new Notice(item.name)
+//
+//			});
 		});
 		// Perform additional things with the ribbon
 		ribbonIconEl.addClass('my-plugin-ribbon-class');
@@ -27,7 +84,7 @@ export default class MyPlugin extends Plugin {
 		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
 		const statusBarItemEl = this.addStatusBarItem();
 		statusBarItemEl.setText('Status Bar Text');
-
+	
 		// This adds a simple command that can be triggered anywhere
 		this.addCommand({
 			id: 'open-sample-modal-simple',
@@ -65,8 +122,7 @@ export default class MyPlugin extends Plugin {
 			}
 		});
 
-		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
+
 
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
@@ -83,7 +139,7 @@ export default class MyPlugin extends Plugin {
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		this.settings = Object.assign({}, defaultSettings, await this.loadData());
 	}
 
 	async saveSettings() {
@@ -104,34 +160,5 @@ class SampleModal extends Modal {
 	onClose() {
 		const {contentEl} = this;
 		contentEl.empty();
-	}
-}
-
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
-
-	constructor(app: App, plugin: MyPlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
-
-	display(): void {
-		const {containerEl} = this;
-
-		containerEl.empty();
-
-		containerEl.createEl('h2', {text: 'Settings for my awesome plugin.'});
-
-		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
-				.onChange(async (value) => {
-					console.log('Secret: ' + value);
-					this.plugin.settings.mySetting = value;
-					await this.plugin.saveSettings();
-				}));
 	}
 }

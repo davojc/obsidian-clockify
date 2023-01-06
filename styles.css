@@ -6,3 +6,37 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+
+.clockify-tracker-btn {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+    align-content: flex-end;
+}
+
+.clockify-tracker-btn svg {
+	width: 20px;
+	height: 20px;
+}
+
+.clockify-tracker-txt {
+	display: block;
+    width: 100%;
+	margin-left: 0px;
+	margin-right: 0px;
+}
+
+.clockify-tracker-table {
+	width: 100%;
+	margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.clockify-tracker-table td,
+.clockify-tracker-table th {
+	border: none;
+}
+
+.clockify-tracker-timer {
+	margin: 20px;
+}
