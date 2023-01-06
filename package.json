@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-clockify",
-	"version": "1.0.3",
-	"description": "This plugin provides Obsidian integration with Clockify (https://clockify.me/)",
+	"name": "obsidian-sample-plugin",
+	"version": "0.1.0",
+	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
