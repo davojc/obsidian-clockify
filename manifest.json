@@ -1,11 +1,9 @@
 {
 	"id": "obsidian-clockify",
 	"name": "Clockify",
-	"version": "1.0.3",
+	"version": "0.1.0",
 	"minAppVersion": "0.15.0",
-	"description": "This plugin provides Obsidian integration with Clockify (https://clockify.me/)",
+	"description": "This plugin provides Obsidian integration with Clockify (https://clockify.me/) to submit timers.",
 	"author": "davojc",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
 	"isDesktopOnly": false
 }
