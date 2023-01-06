@@ -47,7 +47,9 @@ The codeblock reveals this JSON data. Be careful changing this JSON as you may l
 
 ## Roadmap
 
-There are many further plans for this plugin. It would be nice to make some more dynamic options retrieved from Clockify such as Project list and Task list.
+There aren't that many further plans for this plugin, it really has a single intended purpose.
+
+It might be nice to make some more dynamic options retrieved from Clockify such as Project list and Task list.
 
 ## Acknowledgements
 
